@@ -1,0 +1,342 @@
+<?php
+
+	include 'Common.php';
+
+	$MSN = (isset($_GET["MSN"])) ? trim($_GET["MSN"]) : "";
+	$KIT = (isset($_GET["KIT"])) ? trim($_GET["KIT"]) : "";
+	$DWG = (isset($_GET["DWG"])) ? trim($_GET["DWG"]) : "";
+	$VEN = (isset($_GET["VEN"])) ? trim($_GET["VEN"]) : "";
+	$SN = (isset($_GET["SN"])) ? trim($_GET["SN"]) : "";
+	$PN = (isset($_GET["PN"])) ? trim($_GET["PN"]) : "";
+	$CurrentPage = (isset($_GET["P"])) ? $_GET["P"] : 1;
+
+	$ResultCount = GetPartsForTransferCount($MSN, $KIT, $DWG, $VEN, $PN, $SN);
+
+	$PageCounter = GeneratePageCounter($CurrentPage, $ResultCount, 100, "Parts_Transfer.php?MSN=" . $MSN . "&KIT=" . $KIT . "&DWG=" . $DWG . "&VEN=" . $VEN . "&PN=" . $PN . "&SN=" . $SN);
+?>
+
+<html>
+<body onLoad="init()">
+
+	<SCRIPT LANGUAGE="JavaScript">
+
+		function checkAll() {
+			for (i = 0; i < document.Transfer.elements.length; i++) {
+				if(document.Transfer.elements[i].type=="checkbox") {
+					document.Transfer.elements[i].checked=true;
+				}
+			}
+		}
+
+		function uncheckAll() {
+			for (i = 0; i < document.Transfer.elements.length; i++) {
+				if(document.Transfer.elements[i].type=="checkbox") {
+					document.Transfer.elements[i].checked=false;
+				}
+			}
+		}
+
+		function CheckValues() {
+
+			PNCOUNT = 0;
+
+			for (i = 0; i < document.Transfer.elements.length; i++) {
+				if(document.Transfer.elements[i].type=="checkbox") {
+					if(document.Transfer.elements[i].checked==true) {
+						PNCOUNT++;
+					}
+				}
+			}
+
+			if(PNCOUNT == 0) {
+				alert("No PN selected.");
+			}
+			else {
+				SendValues();
+			}
+
+		}
+
+		function SendValues() {
+
+			PNID = "";
+
+			for (i = 0; i < document.Transfer.elements.length; i++) {
+				if(document.Transfer.elements[i].type=="checkbox") {
+					if(document.Transfer.elements[i].checked==true) {
+						PNID = PNID + document.Transfer.elements[i].value + "/";
+					}
+				}
+			}
+
+			URL = "Parts_Transfer_Location.php?PNID=" + PNID;
+
+			window.open(URL,'TransferWindow','height=500,width=800,left=10,top=10,resizable=yes,scrollbars=yes,toolbar=no,menubar=no,location=no,directories=no,status=no');
+		}
+
+	</script>
+
+
+	<div id="loading" style="position:absolute; width:100%; text-align:center; ">
+		<img src="loading.gif" border=0>
+	</div>
+
+	<script>
+		var ld=(document.all);
+
+		var ns4=document.layers;
+		var ns6=document.getElementById&&!document.all;
+		var ie4=document.all;
+
+		if (ns4) {
+			ld=document.loading;
+		}
+		else if (ns6) {
+			ld=document.getElementById("loading").style;
+		}
+		else if (ie4) {
+			ld=document.all.loading.style;
+		}
+
+		function init() {
+
+			if(ns4) {
+				ld.visibility="hidden";
+			}
+			else if (ns6||ie4) {
+				ld.display="none";
+			}
+		}
+	</script>
+
+	<form name="Transfer" method="post" action="Parts_Transfer_Multi_Action.php">
+
+
+		<center>
+
+		<?php echo $PageCounter; ?>
+
+		<br>
+		<br>
+
+		<a href="javascript:void(checkAll(document.Transfer.DATA));">Check All</a>
+		<a href="javascript:void(uncheckAll(document.Transfer.DATA));">Uncheck All</a>
+		<a href="javascript:void(CheckValues());" >Transfer Selected</a>
+		</center>
+
+		<br>
+
+		<table border="0" cellspace="1" width="100%">
+
+			<tr>
+				<td valign="top" width="1">
+					<font size="2">
+					</font>
+				</td>
+				<td valign="top">
+					<font size="2">
+						<i>Kit</i>
+					</font>
+				</td>
+				<td valign="top">
+					<font size="2">
+						<i>MSN</i>
+					</font>
+				</td>
+				<td valign="top">
+					<font size="2">
+						<i>DWG</i>
+					</font>
+				</td>
+				<td valign="top">
+					<font size="2">
+						<i>SN</i>
+					</font>
+				</td>
+				<td valign="top">
+					<font size="2">
+						<i>Vendor</i>
+					</font>
+				</td>
+				<td valign="top">
+					<font size="2">
+						<i>PN</i>
+					</font>
+				</td>
+				<td valign="top">
+					<font size="2">
+						<i>Desc</i>
+					</font>
+				</td>
+				<td valign="top">
+					<font size="2">
+						<i>MFR</i>
+					</font>
+				</td>
+				<td valign="top">
+					<font size="2">
+						<i>IDENT</i>
+					</font>
+				</td>
+				<td valign="top" align="right">
+					<font size="2">
+						<i>Qty Req</i>
+					</font>
+				</td>
+				<td valign="top" align="right">
+					<font size="2">
+						<i>Qty Avl</i>
+					</font>
+				</td>
+				<td valign="top">
+					<font size="2">
+						<i>UOM</i>
+					</font>
+				</td>
+				<td valign="top">
+					<font size="2">
+						<i>Loc</i>
+					</font>
+				</td>
+				<td valign="top">
+					<font size="2">
+						<i>Bin</i>
+					</font>
+				</td>
+				<td valign="top">
+					<font size="2">
+						<i>Kit MPN</i>
+					</font>
+				</td>
+			</tr>
+
+			<?php
+
+				GetPartsForTransfer($MSN, $KIT, $DWG, $VEN, $PN, $SN, $CurrentPage, 100, $result);
+
+				$BGCount=0;
+
+				while ($ResultData = mysqli_fetch_assoc($result)) {
+
+					if ($BGCount % 2 == 0) {
+						$BGColor="#FFFFB4";
+						$BGCount++;
+					}
+					else {
+						$BGColor="#ADD2D3";
+						$BGCount++;
+					}
+
+					$DATA = $ResultData["PN_ID"] . "," . $ResultData["PN_QTY_REQ"] . "," . $ResultData["INVD_QTY"] . "," . $ResultData["INVD_ID"];
+
+					$href = "javascript:void(window.open('Parts_Transfer_Location.php?PNID=" . $DATA . "','TransferWindow','height=500,width=800,left=10,top=10,resizable=yes,scrollbars=yes,toolbar=no,menubar=no,location=no,directories=no,status=no'));";
+			?>
+
+			<tr>
+				<td valign="top" bgcolor="<?php echo $BGColor; ?>">
+					<font size="2">
+						<input type="checkbox" name="DATA[]" value="<?php echo $DATA; ?>">
+					</font>
+				</td>
+				<td valign="top" bgcolor="<?php echo $BGColor; ?>">
+					<font size="2">
+						<a href="<?php echo $href; ?>"><?php echo $ResultData["PN_KIT"]; ?></a>
+					</font>
+				</td>
+				<td valign="top" bgcolor="<?php echo $BGColor; ?>">
+					<font size="2">
+						<a href="<?php echo $href; ?>"><?php echo $ResultData["PN_MSN"]; ?></a>
+					</font>
+				</td>
+				<td valign="top" bgcolor="<?php echo $BGColor; ?>">
+					<font size="2">
+						<a href="<?php echo $href; ?>"><?php echo $ResultData["PN_DWG"]; ?></a>
+					</font>
+				</td>
+				<td valign="top" bgcolor="<?php echo $BGColor; ?>">
+					<font size="2">
+						<a href="<?php echo $href; ?>"><?php echo $ResultData["PN_KIT_SN"]; ?></a>
+					</font>
+				</td>
+				<td valign="top" bgcolor="<?php echo $BGColor; ?>">
+					<font size="2">
+						<a href="<?php echo $href; ?>"><?php echo $ResultData["PN_VENDOR"]; ?></a>
+					</font>
+				</td>
+				<td valign="top" bgcolor="<?php echo $BGColor; ?>">
+					<font size="2">
+						<a href="<?php echo $href; ?>"><?php echo $ResultData["PN_PN"]; ?></a>
+					</font>
+				</td>
+				<td valign="top" bgcolor="<?php echo $BGColor; ?>">
+					<font size="2">
+						<a href="<?php echo $href; ?>"><?php echo $ResultData["PN_DESC"]; ?></a>
+					</font>
+				</td>
+				<td valign="top" bgcolor="<?php echo $BGColor; ?>">
+					<font size="2">
+						<a href="<?php echo $href; ?>"><?php echo $ResultData["PN_MFR"]; ?></a>
+					</font>
+				</td>
+				<td valign="top" bgcolor="<?php echo $BGColor; ?>">
+					<font size="2">
+						<a href="<?php echo $href; ?>"><?php echo $ResultData["PN_IDENT"]; ?></a>
+					</font>
+				</td>
+				<td valign="top" bgcolor="<?php echo $BGColor; ?>" align="right">
+					<font size="2">
+						<a href="<?php echo $href; ?>"><?php echo $ResultData["PN_QTY_REQ"]; ?></a>
+					</font>
+				</td>
+				<td valign="top" bgcolor="<?php echo $BGColor; ?>" align="right">
+					<font size="2">
+						<a href="<?php echo $href; ?>"><?php echo $ResultData["INVD_QTY"]; ?></a>
+					</font>
+				</td>
+				<td valign="top" bgcolor="<?php echo $BGColor; ?>">
+					<font size="2">
+						<a href="<?php echo $href; ?>"><?php echo $ResultData["PN_UOM"]; ?></a>
+					</font>
+				</td>
+				<td valign="top" bgcolor="<?php echo $BGColor; ?>">
+					<font size="2">
+						<a href="<?php echo $href; ?>"><?php echo $ResultData["INVD_LOCATION"]; ?></a>
+					</font>
+				</td>
+				<td valign="top" bgcolor="<?php echo $BGColor; ?>">
+					<font size="2">
+						<a href="<?php echo $href; ?>"><?php echo $ResultData["INVD_BIN"]; ?></a>
+					</font>
+				</td>
+				<td valign="top" bgcolor="<?php echo $BGColor; ?>">
+					<font size="2">
+						<a href="<?php echo $href; ?>"><?php echo $ResultData["PN_KIT_MPN"]; ?></a>
+					</font>
+				</td>
+			</tr>
+
+			<?php
+				}
+				mysqli_free_result($result);
+			?>
+
+		</table>
+
+		<br>
+
+		<center>
+		<a href="javascript:void(checkAll(document.Transfer.DATA));">Check All</a>
+		<a href="javascript:void(uncheckAll(document.Transfer.DATA));">Uncheck All</a>
+		<a href="javascript:void(CheckValues());" >Transfer Selected</a>
+
+		<br>
+		<br>
+
+		<?php echo $PageCounter; ?>
+
+		</center>
+
+	</form>
+
+</body>
+</html>
